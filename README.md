@@ -10,78 +10,210 @@
 ---
 
 ## 📌 Project Overview
-[cite_start]The **Parkify** system is a full-stack mobile solution developed to modernize parking space discovery, booking, and vehicle service management.[cite: 10, 11]. [cite_start]Originally conceptualized as a web application, this version is specifically engineered for mobile platforms using the **MERN** (React Native focus) stack for the **Web and Mobile Technologies (SE2020)** assignment.[cite: 5, 12].
+
+**Parkify** is a full-stack smart parking and vehicle service management system designed to modernize parking space discovery, booking, payments, and vehicle service operations.
+
+It is developed using the **MERN-style architecture (React Native + Node.js + Express + MongoDB)** and is optimized for mobile-first usage.
 
 ---
 
 ## 🎯 Objectives
-- **Efficiency:** Reduce time spent searching for parking spots.
-- **Real-time Access:** Provide live updates on slot availability.
-- [cite_start]**Convenience:** Enable easy mobile-based reservations and payments.[cite: 41].
-- **Service Integration:** Manage vehicle service center appointments alongside parking.
+
+* 🚗 Reduce time spent searching for parking spaces
+* 📡 Provide real-time parking slot availability
+* 📱 Enable mobile-based booking and payments
+* 🧭 Improve navigation using map integration
+* 🔧 Integrate vehicle service management features
 
 ---
 
 ## 🛠️ Technology Stack
-| Category | Technology |
-|----------|------------|
-| **Frontend** | [cite_start]React Native (Expo) [cite: 12] |
-| **Backend** | [cite_start]Node.js + Express.js [cite: 13] |
-| **Database** | [cite_start]MongoDB (Atlas) [cite: 14] |
-| **Auth** | [cite_start]JWT with Password Hashing (Bcrypt) [cite: 21, 22] |
-| **Hosting** | [cite_start]Deployed on Render/Railway [cite: 15, 27] |
+
+| Category       | Technology              |
+| -------------- | ----------------------- |
+| Frontend       | React Native (Expo)     |
+| Backend        | Node.js + Express.js    |
+| Database       | MongoDB (Atlas / Local) |
+| Authentication | JWT + bcrypt            |
+| API Testing    | Postman                 |
+| Tools          | Git, GitHub, VS Code    |
+| Deployment     | Render / Railway        |
 
 ---
 
 ## 👥 Team Members & Responsibilities
-[cite_start]Each member is responsible for a complete module, including **Full CRUD backend**, **Mobile UI**, and **API integration**.[cite: 31, 32, 38, 39, 41].
 
-| Registration Number | Student Name | Assigned Module |
-| :--- | :--- | :--- |
-| **IT24101654** | **HASARINDA W.D.Y.L. (Leader)** | **User Management + AI Assistant** |
-| IT24102636 | DISSANAYAKE R.P.Y.R. | Parking Place Management |
-| IT24101671 | MUNTHAS F.M. | Reservation Management |
-| IT24101820 | VIKIRUTHAN P. | Payment Management |
-| IT24100902 | CHANDANAYAKE M.W.H.A. | Inventory Management |
-| IT24100036 | SURENTHIRAN K. | Vehicle Service Center Management |
+Each member is responsible for a complete module including backend APIs, mobile UI, and integration.
 
----
-
-## ⚙️ Core System Modules
-
-### 1. User Management & AI (Member 3 - Leader)
-- [cite_start]**Auth:** Registration and Login with JWT authentication.[cite: 19, 20, 22, 34, 35].
-- [cite_start]**Security:** Bcrypt password hashing and protected routes.[cite: 21, 23, 36, 37].
-- **AI:** Integrated Chatbot for user guidance and profile support.
-
-### 2. Parking Place Management (Member 1)
-- [cite_start]**Control:** CRUD operations for parking facilities and slots.[cite: 39].
-- [cite_start]**Media:** Image uploads for parking locations using Multer.[cite: 40, 151, 152].
-
-### 3. Reservation Management (Member 2)
-- [cite_start]**Booking:** Logic for driver-based slot reservations.[cite: 121].
-- [cite_start]**History:** Tracking past and upcoming booking details.[cite: 122].
-
-### 4. Payment Management (Member 4)
-- **Billing:** Secure transaction record management.
-- **Reporting:** Generation of digital transaction histories.
-
-### 5. Inventory Management (Member 5)
-- **Supplies:** Management of service center tools and spare parts.
-- **Tracking:** Real-time stock updates for oil, parts, and equipment.
-
-### 6. Service Center Management (Member 6)
-- **Appointments:** Scheduling for vehicle repairs and car washes.
-- [cite_start]**Deployment:** Responsibility for server hosting and cloud database connection.[cite: 158, 159, 161].
+| Registration Number | Student Name                | Assigned Module                   |
+| ------------------- | --------------------------- | --------------------------------- |
+| IT24101654          | HASARINDA W.D.Y.L. (Leader) | User Management + AI Assistant    |
+| IT24102636          | DISSANAYAKE R.P.Y.R.        | Parking Place Management          |
+| IT24101671          | MUNTHAS F.M.                | Reservation Management            |
+| IT24101820          | VIKIRUTHAN P.               | Payment Management                |
+| IT24100902          | CHANDANAYAKE M.W.H.A.       | Inventory Management              |
+| IT24100036          | SURENTHIRAN K.              | Vehicle Service Center Management |
 
 ---
 
-## 📂 Project Structure (Backend)
-```text
-├── config/         # Database and Environment config [cite: 50]
-├── controllers/    # Module-specific logic [cite: 43, 50]
-├── middleware/     # Auth & Error handling [cite: 51]
-├── models/         # MongoDB Schemas [cite: 66]
-├── routes/         # API Endpoints (RESTful) [cite: 42, 49, 50]
-├── utils/          # Helper functions (JWT, Hashing)
-└── index.js        # Server entry point
+## ⚙️ System Modules
+
+### 1️⃣ User Management & AI Assistant
+
+* User registration and login system
+* JWT-based authentication
+* Password hashing using bcrypt
+* AI chatbot assistant for user support
+
+---
+
+### 2️⃣ Parking Place Management
+
+* Create, update, delete parking locations
+* Manage parking slots
+* Image upload support for locations
+
+---
+
+### 3️⃣ Reservation Management
+
+* Book parking slots in real time
+* View booking history
+* Manage active reservations
+
+---
+
+### 4️⃣ Payment Management
+
+* Secure transaction handling
+* Payment history tracking
+* Invoice generation
+
+---
+
+### 5️⃣ Inventory Management
+
+* Manage spare parts and supplies
+* Track stock availability
+* Update inventory records
+
+---
+
+### 6️⃣ Vehicle Service Center Management
+
+* Service appointment scheduling
+* Maintenance tracking
+* Service history records
+
+---
+
+## 📱 Mobile Application Features
+
+* Secure login & registration system
+* Real-time API integration
+* Dynamic UI (no hardcoded data)
+* Smooth navigation between modules
+* Form validation for better UX
+* AI assistant integration
+
+---
+
+## 🏗️ Backend Architecture
+
+```
+backend/
+ ├── config/        # Database & environment setup
+ ├── controllers/   # Business logic
+ ├── middleware/    # Authentication & error handling
+ ├── models/        # MongoDB schemas (Mongoose)
+ ├── routes/        # REST API endpoints
+ ├── utils/         # Helper functions (JWT, hashing)
+ └── index.js       # Server entry point
+```
+
+---
+
+## 🔐 Authentication Flow
+
+* User registers → password encrypted (bcrypt)
+* Login request → JWT token generated
+* Protected routes → JWT middleware validation
+
+---
+
+## 🚀 Setup Instructions
+
+### 1️⃣ Clone Repository
+
+```bash
+git clone https://github.com/yourusername/parkify.git
+cd parkify
+```
+
+### 2️⃣ Install Dependencies
+
+```bash
+npm install
+```
+
+### 3️⃣ Start Backend Server
+
+```bash
+npm run dev
+```
+
+Server runs at:
+
+```
+http://localhost:5000
+```
+
+### 4️⃣ Run Mobile App
+
+```bash
+npx expo start
+```
+
+Scan QR code using **Expo Go** app.
+
+---
+
+## 🗄️ Database Setup (MongoDB)
+
+```js
+mongoose.connect("mongodb://localhost:27017/parkify");
+```
+
+Or use MongoDB Atlas cloud database for production.
+
+---
+
+## 📊 Future Enhancements
+
+* 📱 Native Android/iOS builds
+* 🔔 Real-time notifications
+* 📍 Live slot tracking system
+* 🤖 AI-based parking prediction
+* 💳 Payment gateway integration (Stripe)
+* 📷 Camera-based parking detection
+
+---
+
+## 🎓 Academic Information
+
+Faculty of Computing - SLIIT 2026
+
+---
+
+## ⭐ Support
+
+If you like this project:
+
+* ⭐ Star this repository
+* 🍴 Fork and contribute
+
+---
+
+## 📄 License
+
+This project is developed for **academic purposes only**.
