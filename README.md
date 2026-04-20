@@ -1,65 +1,87 @@
 # 🚗 Parkify - Smart Parking & Service Management System
 
-Parkify is a comprehensive full-stack mobile application designed to streamline parking space management, reservations, and vehicle service center operations. This project is developed as part of the **Web and Mobile Technologies (SE2020)** group assignment at SLIIT.
+<p align="center">
+  <img src="https://img.shields.io/badge/Frontend-React%20Native-blue?style=for-the-badge&logo=react" />
+  <img src="https://img.shields.io/badge/Backend-Node.js-green?style=for-the-badge&logo=nodedotjs" />
+  <img src="https://img.shields.io/badge/Framework-Express.js-black?style=for-the-badge&logo=express" />
+  <img src="https://img.shields.io/badge/Database-MongoDB-brightgreen?style=for-the-badge&logo=mongodb" />
+</p>
 
-## 🚀 Tech Stack
+---
 
-- **Frontend:** React Native (Expo)
-- **Backend:** Node.js & Express.js
-- **Database:** MongoDB (Atlas)
-- **Authentication:** JWT (JSON Web Tokens) with Bcryptjs Password Hashing
-- **Hosting:** Deployed on Render / Railway
+## 📌 Project Overview
+[cite_start]The **Parkify** system is a full-stack mobile solution developed to modernize parking space discovery, booking, and vehicle service management.[cite: 10, 11]. [cite_start]Originally conceptualized as a web application, this version is specifically engineered for mobile platforms using the **MERN** (React Native focus) stack for the **Web and Mobile Technologies (SE2020)** assignment.[cite: 5, 12].
 
-## 📋 Core System Requirements
-* [cite_start]**User Authentication:** Secure Registration and Login system[cite: 18, 19, 20].
-* [cite_start]**Data Security:** Implementation of Password hashing and JWT-based protected routes[cite: 21, 22, 23].
-* [cite_start]**Cloud Hosting:** Backend hosted online to ensure real-time mobile app interaction[cite: 27, 28].
-* [cite_start]**RESTful API:** Properly structured controllers, routes, and middleware[cite: 49, 50, 51].
+---
+
+## 🎯 Objectives
+- **Efficiency:** Reduce time spent searching for parking spots.
+- **Real-time Access:** Provide live updates on slot availability.
+- [cite_start]**Convenience:** Enable easy mobile-based reservations and payments.[cite: 41].
+- **Service Integration:** Manage vehicle service center appointments alongside parking.
+
+---
+
+## 🛠️ Technology Stack
+| Category | Technology |
+|----------|------------|
+| **Frontend** | [cite_start]React Native (Expo) [cite: 12] |
+| **Backend** | [cite_start]Node.js + Express.js [cite: 13] |
+| **Database** | [cite_start]MongoDB (Atlas) [cite: 14] |
+| **Auth** | [cite_start]JWT with Password Hashing (Bcrypt) [cite: 21, 22] |
+| **Hosting** | [cite_start]Deployed on Render/Railway [cite: 15, 27] |
+
+---
 
 ## 👥 Team Members & Responsibilities
+[cite_start]Each member is responsible for a complete module, including **Full CRUD backend**, **Mobile UI**, and **API integration**.[cite: 31, 32, 38, 39, 41].
 
 | Registration Number | Student Name | Assigned Module |
 | :--- | :--- | :--- |
-| **IT24101654** | **HASARINDA W.D.Y.L.** | **User Management + AI Assistant** |
+| **IT24101654** | **HASARINDA W.D.Y.L. (Leader)** | **User Management + AI Assistant** |
 | IT24102636 | DISSANAYAKE R.P.Y.R. | Parking Place Management |
 | IT24101671 | MUNTHAS F.M. | Reservation Management |
 | IT24101820 | VIKIRUTHAN P. | Payment Management |
 | IT24100902 | CHANDANAYAKE M.W.H.A. | Inventory Management |
 | IT24100036 | SURENTHIRAN K. | Vehicle Service Center Management |
 
-## 🛠️ Module Breakdown
+---
 
-### 1. User Management + AI Assistant (Lead: IT24101654)
-- [cite_start]**Authentication:** Core login and registration API using JWT[cite: 34, 35].
-- [cite_start]**Security:** Implementation of password hashing and route protection[cite: 36, 37].
-- **AI Integration:** Smart chatbot/assistant integration for user support and profile management.
+## ⚙️ Core System Modules
 
-### 2. Parking Place Management (Lead: IT24102636)
-- [cite_start]**CRUD:** Full management (Add/Update/Delete) of parking locations and slots.
-- [cite_start]**Media:** Image upload functionality for parking areas using Multer[cite: 40].
+### 1. User Management & AI (Member 3 - Leader)
+- [cite_start]**Auth:** Registration and Login with JWT authentication.[cite: 19, 20, 22, 34, 35].
+- [cite_start]**Security:** Bcrypt password hashing and protected routes.[cite: 21, 23, 36, 37].
+- **AI:** Integrated Chatbot for user guidance and profile support.
 
-### 3. Reservation Management (Lead: IT24101671)
-- **Booking:** Backend logic for reserving parking slots and tracking history.
-- **Integration:** Ensuring real-time updates on slot availability upon reservation.
+### 2. Parking Place Management (Member 1)
+- [cite_start]**Control:** CRUD operations for parking facilities and slots.[cite: 39].
+- [cite_start]**Media:** Image uploads for parking locations using Multer.[cite: 40, 151, 152].
 
-### 4. Payment Management (Lead: IT24101820)
-- **Transactions:** Handling secure payment details and financial transaction records.
-- **Reporting:** Generating digital invoices and maintaining transaction history.
+### 3. Reservation Management (Member 2)
+- [cite_start]**Booking:** Logic for driver-based slot reservations.[cite: 121].
+- [cite_start]**History:** Tracking past and upcoming booking details.[cite: 122].
 
-### 5. Inventory Management (Lead: IT24100902)
-- **Stock Tracking:** Managing spare parts, oil, and service tools for the service center.
-- **CRUD:** Adding, updating, and removing inventory items from the database.
+### 4. Payment Management (Member 4)
+- **Billing:** Secure transaction record management.
+- **Reporting:** Generation of digital transaction histories.
 
-### 6. Vehicle Service Center Management (Lead: IT24100036)
-- **Schedules:** Appointment booking for vehicle services like car washes and repairs.
-- **Management:** Tracking service status and labor task allocation.
+### 5. Inventory Management (Member 5)
+- **Supplies:** Management of service center tools and spare parts.
+- **Tracking:** Real-time stock updates for oil, parts, and equipment.
 
-## ⚙️ Project Structure
+### 6. Service Center Management (Member 6)
+- **Appointments:** Scheduling for vehicle repairs and car washes.
+- [cite_start]**Deployment:** Responsibility for server hosting and cloud database connection.[cite: 158, 159, 161].
+
+---
+
+## 📂 Project Structure (Backend)
 ```text
-├── config/         # Database connection and environment variables
-├── controllers/    # Business logic for each module (CRUD)
-├── middleware/     # Auth (JWT) and error handling middleware
-├── models/         # MongoDB Schemas for each entity
-├── routes/         # API Endpoint definitions
-├── utils/          # Helper functions (hashing, JWT helpers)
-└── index.js        # Main entry point of the server
+├── config/         # Database and Environment config [cite: 50]
+├── controllers/    # Module-specific logic [cite: 43, 50]
+├── middleware/     # Auth & Error handling [cite: 51]
+├── models/         # MongoDB Schemas [cite: 66]
+├── routes/         # API Endpoints (RESTful) [cite: 42, 49, 50]
+├── utils/          # Helper functions (JWT, Hashing)
+└── index.js        # Server entry point
