@@ -1,0 +1,30 @@
+{
+  "name": "parkify-backend",
+  "version": "1.0.0",
+  "description": "<p align=\"center\">\r   <img src=\"https://img.shields.io/badge/Frontend-React%20Native-blue?style=for-the-badge&logo=react\" />\r   <img src=\"https://img.shields.io/badge/Backend-Node.js-green?style=for-the-badge&logo=nodedotjs\" />\r   <img src=\"https://img.shields.io/badge/Framework-Express.js-black?style=for-the-badge&logo=express\" />\r   <img src=\"https://img.shields.io/badge/Database-MongoDB-brightgreen?style=for-the-badge&logo=mongodb\" />\r </p>",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IT24101654/Parkify-Backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/IT24101654/Parkify-Backend/issues"
+  },
+  "homepage": "https://github.com/IT24101654/Parkify-Backend#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.4.1",
+    "nodemailer": "^8.0.5"
+  }
+}
