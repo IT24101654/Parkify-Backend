@@ -1,29 +1,48 @@
-// index.js
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 
-// Load env variables
 dotenv.config();
 
-// Connect to database
 connectDB();
 
 const app = express();
 
-// Middleware (මේකෙන් තමයි JSON data, frontend එකෙන් backend එකට එද්දි කියවන්නේ)
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Basic Route එකක් දාමු server එක වැඩද බලන්න
+// Debugging: Log incoming requests to see body
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    next();
+});
+
 app.get('/', (req, res) => {
     res.send('Parkify API is running!');
 });
 
-// Import Routes (මෙතන තමයි අපි ඉස්සරහට routes දාන්නේ)
 const authRoutes = require('./routes/authRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const vehicleRoutes = require('./routes/vehicleRoutes');
+const path = require('path');
+const fs = require('fs');
+const { seedSuperAdmin } = require('./utils/seeder');
+
+// Seed Super Admin on Startup
+seedSuperAdmin();
+
 app.use('/api/auth', authRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/vehicles', vehicleRoutes);
+
+const uploadDir = path.join(__dirname, 'uploads/vehicle-docs');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 
 const PORT = process.env.PORT || 5000;
