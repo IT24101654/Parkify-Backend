@@ -1,18 +1,17 @@
 const User = require('../models/User');
 const PendingUser = require('../models/PendingUser');
 const Otp = require('../models/Otp');
-const { sendOtpEmail } = require('../utils/emailService');
+const Notification = require('../models/Notification');
+const { sendOtpEmail, sendAdminAlertEmail } = require('../utils/emailService');
+
 const jwt = require('jsonwebtoken');
 
-// Generate 6 digit OTP
 const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString();
 
-// Generate JWT token
 const generateToken = (id, role) => {
     return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
-// @route POST /api/auth/register-otp
 const sendOtpForRegistration = async (req, res) => {
     const { name, email, password, phoneNumber, address, role } = req.body;
     const lowerEmail = email.toLowerCase().trim();
@@ -22,24 +21,20 @@ const sendOtpForRegistration = async (req, res) => {
             return res.status(403).json({ message: 'SUPER_ADMIN cannot be registered publicly' });
         }
 
-        // Check if user already exists with this role
         const existingUser = await User.findOne({ email: lowerEmail, role });
         if (existingUser) {
             return res.status(409).json({ message: `Already registered as ${role}` });
         }
 
-        // Save pending user
-        await PendingUser.findOneAndDelete({ email: lowerEmail, role }); // Remove old pending if any
+        await PendingUser.findOneAndDelete({ email: lowerEmail, role });
         await PendingUser.create({
             name, email: lowerEmail, password, phoneNumber, address, role
         });
 
-        // Generate & Save OTP
         const otpCode = generateOtp();
         await Otp.findOneAndDelete({ email: lowerEmail, type: 'REGISTER' });
         await Otp.create({ email: lowerEmail, otp: otpCode, type: 'REGISTER' });
 
-        // Send Email
         await sendOtpEmail(lowerEmail, otpCode);
 
         res.status(200).json({ message: 'OTP sent to email for registration' });
@@ -48,7 +43,6 @@ const sendOtpForRegistration = async (req, res) => {
     }
 };
 
-// @route POST /api/auth/verify-register-otp
 const verifyRegistrationOtp = async (req, res) => {
     const { email, otp, role } = req.body;
     const lowerEmail = email.toLowerCase().trim();
@@ -64,7 +58,6 @@ const verifyRegistrationOtp = async (req, res) => {
             return res.status(400).json({ message: 'Registration details not found. Register again.' });
         }
 
-        // Create User (password hashing is handled in User model pre-save hook)
         const user = await User.create({
             name: pendingUser.name,
             email: pendingUser.email,
@@ -74,9 +67,19 @@ const verifyRegistrationOtp = async (req, res) => {
             role: pendingUser.role
         });
 
-        // Cleanup
         await PendingUser.deleteOne({ _id: pendingUser._id });
         await Otp.deleteOne({ _id: validOtp._id });
+
+        const admins = await User.find({ role: 'SUPER_ADMIN' });
+        for (const admin of admins) {
+            await Notification.create({
+                message: `New user ${user.name} (${user.role}) has registered.`,
+                type: 'USER_REGISTRATION',
+                admin: admin._id
+            });
+            // Send Email Alert to Admin
+            await sendAdminAlertEmail(admin.email, user);
+        }
 
         res.status(201).json({
             token: generateToken(user._id, user.role),
@@ -92,26 +95,23 @@ const verifyRegistrationOtp = async (req, res) => {
     }
 };
 
-// @route POST /api/auth/login
 const login = async (req, res) => {
     const { email, password } = req.body;
     const lowerEmail = email.toLowerCase().trim();
 
     try {
-        // Find all roles this email has
         const users = await User.find({ email: lowerEmail });
-        
+
         if (users.length === 0) {
             return res.status(401).json({ message: 'Invalid Email or Password' });
         }
 
-        // Find the user whose password matches among the different roles
         let matchedUser = null;
         for (let u of users) {
-             if (await u.matchPassword(password)) {
-                 matchedUser = u;
-                 break;
-             }
+            if (await u.matchPassword(password)) {
+                matchedUser = u;
+                break;
+            }
         }
 
         if (!matchedUser) {
@@ -121,11 +121,10 @@ const login = async (req, res) => {
         const roles = users.map(u => u.role);
 
         if (roles.length === 1) {
-            // Auto trigger OTP
             const otpCode = generateOtp();
             await Otp.findOneAndDelete({ email: lowerEmail, type: 'LOGIN' });
             await Otp.create({ email: lowerEmail, otp: otpCode, type: 'LOGIN', role: roles[0] });
-            
+
             await sendOtpEmail(lowerEmail, otpCode);
 
             return res.status(200).json({
@@ -134,18 +133,16 @@ const login = async (req, res) => {
             });
         }
 
-        // Multiple roles -> Need role selection before sending OTP
         res.status(200).json({
             status: 'ROLE_SELECTION_REQUIRED',
             roles: roles
         });
 
     } catch (error) {
-         res.status(500).json({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
 
-// @route POST /api/auth/select-role
 const selectRole = async (req, res) => {
     const { email, role } = req.body;
     const lowerEmail = email.toLowerCase().trim();
@@ -154,7 +151,7 @@ const selectRole = async (req, res) => {
         const otpCode = generateOtp();
         await Otp.findOneAndDelete({ email: lowerEmail, type: 'LOGIN', role });
         await Otp.create({ email: lowerEmail, otp: otpCode, type: 'LOGIN', role });
-        
+
         await sendOtpEmail(lowerEmail, otpCode);
 
         res.status(200).json({ status: 'OTP_SENT' });
@@ -163,7 +160,6 @@ const selectRole = async (req, res) => {
     }
 };
 
-// @route POST /api/auth/verify-otp
 const verifyOtp = async (req, res) => {
     const { email, otp, role } = req.body;
     const lowerEmail = email.toLowerCase().trim();
@@ -175,7 +171,7 @@ const verifyOtp = async (req, res) => {
         }
 
         const user = await User.findOne({ email: lowerEmail, role });
-        
+
         await Otp.deleteOne({ _id: validOtp._id });
 
         res.status(200).json({
@@ -192,10 +188,75 @@ const verifyOtp = async (req, res) => {
     }
 };
 
+const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+    const lowerEmail = email.toLowerCase().trim();
+
+    try {
+        const user = await User.findOne({ email: lowerEmail });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found with this email' });
+        }
+
+        const otpCode = generateOtp();
+        await Otp.findOneAndDelete({ email: lowerEmail, type: 'RESET_PASSWORD' });
+        await Otp.create({ email: lowerEmail, otp: otpCode, type: 'RESET_PASSWORD' });
+
+        await sendOtpEmail(lowerEmail, otpCode);
+
+        res.status(200).json({ message: 'Password reset OTP sent to email' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const verifyResetOtp = async (req, res) => {
+    const { email, otp } = req.body;
+    const lowerEmail = email.toLowerCase().trim();
+
+    try {
+        const validOtp = await Otp.findOne({ email: lowerEmail, otp, type: 'RESET_PASSWORD' });
+        if (!validOtp) {
+            return res.status(401).json({ message: 'Invalid or expired OTP' });
+        }
+
+        res.status(200).json({ message: 'OTP verified. You can now reset your password.' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const resetPassword = async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+    const lowerEmail = email.toLowerCase().trim();
+
+    try {
+        const validOtp = await Otp.findOne({ email: lowerEmail, otp, type: 'RESET_PASSWORD' });
+        if (!validOtp) {
+            return res.status(401).json({ message: 'Invalid or expired OTP' });
+        }
+
+        const users = await User.find({ email: lowerEmail });
+        for (let user of users) {
+            user.password = newPassword;
+            await user.save();
+        }
+
+        await Otp.deleteOne({ _id: validOtp._id });
+
+        res.status(200).json({ message: 'Password reset successfully for all associated roles.' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     sendOtpForRegistration,
     verifyRegistrationOtp,
     login,
     selectRole,
-    verifyOtp
+    verifyOtp,
+    forgotPassword,
+    verifyResetOtp,
+    resetPassword
 };

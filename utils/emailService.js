@@ -29,4 +29,29 @@ const sendOtpEmail = async (email, otp) => {
     }
 };
 
-module.exports = { sendOtpEmail };
+const sendAdminAlertEmail = async (adminEmail, newUser) => {
+    try {
+        const mailOptions = {
+            from: `"Parkify System" <${process.env.EMAIL_USER}>`,
+            to: adminEmail,
+            subject: '🔔 New User Registration Alert',
+            html: `
+                <h3>New User Registered on Parkify</h3>
+                <p>A new user has just verified their account:</p>
+                <ul>
+                    <li><strong>Name:</strong> ${newUser.name}</li>
+                    <li><strong>Email:</strong> ${newUser.email}</li>
+                    <li><strong>Role:</strong> ${newUser.role}</li>
+                </ul>
+                <p>Login to the dashboard for more details.</p>
+            `,
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log(`Admin Alert Sent to ${adminEmail}`);
+    } catch (error) {
+        console.error('Error sending Admin Alert Email:', error);
+    }
+};
+
+module.exports = { sendOtpEmail, sendAdminAlertEmail };
