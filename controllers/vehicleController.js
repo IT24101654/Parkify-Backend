@@ -62,42 +62,55 @@ const getVehicleById = async (req, res) => {
 
 const updateVehicle = async (req, res) => {
     try {
-        const { vehicleNumber, brand, model, type, fuelType } = req.body;
-        const vehicle = await Vehicle.findById(req.params.id);
+        const { id } = req.params;
+        console.log('--- Update Start ---');
+        console.log('ID:', id);
+        console.log('Body:', req.body);
+        console.log('Files:', req.files ? Object.keys(req.files) : 'No files');
 
+        const vehicle = await Vehicle.findById(id);
         if (!vehicle) {
             return res.status(404).json({ message: 'Vehicle not found' });
         }
 
-        if (vehicle.owner.toString() !== req.user._id.toString() && req.user.role !== 'SUPER_ADMIN') {
-            return res.status(403).json({ message: 'Not authorized to update this vehicle' });
-        }
+        const { vehicleNumber, brand, model, type, fuelType } = req.body;
 
-        vehicle.vehicleNumber = vehicleNumber || vehicle.vehicleNumber;
-        vehicle.brand = brand || vehicle.brand;
-        vehicle.model = model || vehicle.model;
-        vehicle.type = type || vehicle.type;
-        vehicle.fuelType = fuelType || vehicle.fuelType;
+        const updateData = {
+            vehicleNumber: vehicleNumber || vehicle.vehicleNumber,
+            brand: brand || vehicle.brand,
+            model: model || vehicle.model,
+            type: type || vehicle.type,
+            fuelType: fuelType || vehicle.fuelType,
+        };
 
-        if (req.files && req.files['vehicleImage']) {
-            // Delete old image if exists
-            if (vehicle.vehicleImage && fs.existsSync(vehicle.vehicleImage)) {
-                fs.unlinkSync(vehicle.vehicleImage);
+        if (req.files) {
+            if (req.files['vehicleImage']) {
+                if (vehicle.vehicleImage && !vehicle.vehicleImage.startsWith('http')) {
+                    const oldPath = path.join(__dirname, '..', vehicle.vehicleImage);
+                    if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+                }
+                updateData.vehicleImage = req.files['vehicleImage'][0].path;
             }
-            vehicle.vehicleImage = req.files['vehicleImage'][0].path;
-        }
-
-        if (req.files && req.files['licenseImage']) {
-            // Delete old image if exists
-            if (vehicle.licenseImage && fs.existsSync(vehicle.licenseImage)) {
-                fs.unlinkSync(vehicle.licenseImage);
+            if (req.files['licenseImage']) {
+                if (vehicle.licenseImage && !vehicle.licenseImage.startsWith('http')) {
+                    const oldPath = path.join(__dirname, '..', vehicle.licenseImage);
+                    if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+                }
+                updateData.licenseImage = req.files['licenseImage'][0].path;
             }
-            vehicle.licenseImage = req.files['licenseImage'][0].path;
         }
 
-        const updatedVehicle = await vehicle.save();
+        const updatedVehicle = await Vehicle.findByIdAndUpdate(
+            id,
+            { $set: updateData },
+            { new: true }
+        );
+
+        console.log('--- Update Success ---');
         res.status(200).json(updatedVehicle);
     } catch (error) {
+        console.error('--- Update Error ---');
+        console.error(error);
         res.status(500).json({ message: error.message });
     }
 };

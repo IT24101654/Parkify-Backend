@@ -4,6 +4,8 @@
   "description": "<p align=\"center\">\r   <img src=\"https://img.shields.io/badge/Frontend-React%20Native-blue?style=for-the-badge&logo=react\" />\r   <img src=\"https://img.shields.io/badge/Backend-Node.js-green?style=for-the-badge&logo=nodedotjs\" />\r   <img src=\"https://img.shields.io/badge/Framework-Express.js-black?style=for-the-badge&logo=express\" />\r   <img src=\"https://img.shields.io/badge/Database-MongoDB-brightgreen?style=for-the-badge&logo=mongodb\" />\r </p>",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
