@@ -8,8 +8,13 @@ const {
     verifyOtp,
     forgotPassword,
     verifyResetOtp,
-    resetPassword
+    resetPassword,
+    completeProfile,
+    finalizeOnboarding,
+    updateProfile,
+    changePassword
 } = require('../controllers/authController');
+const { protect } = require('../middleware/authMiddleware');
 
 router.post('/register-otp', sendOtpForRegistration);
 router.post('/verify-register-otp', verifyRegistrationOtp);
@@ -20,5 +25,9 @@ router.post('/verify-otp', verifyOtp);
 router.post('/forgot-password', forgotPassword);
 router.post('/verify-reset-otp', verifyResetOtp);
 router.post('/reset-password', resetPassword);
+router.put('/complete-profile', protect, completeProfile);
+router.put('/finalize-onboarding', protect, finalizeOnboarding);
+router.put('/update-profile', protect, updateProfile);
+router.put('/change-password', protect, changePassword);
 
 module.exports = router;

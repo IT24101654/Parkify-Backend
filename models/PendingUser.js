@@ -8,7 +8,12 @@ const pendingUserSchema = new mongoose.Schema({
     phoneNumber: { type: String },
     address: { type: String },
     role: { type: String, enum: ['SUPER_ADMIN', 'PARKING_OWNER', 'DRIVER'], required: true },
-    createdAt: { type: Date, default: Date.now, expires: 600 } // Auto-delete after 10 mins
+    driverPreferences: { type: String },
+    ownerServices: {
+        hasInventory: { type: Boolean, default: false },
+        hasServiceCenter: { type: Boolean, default: false }
+    },
+    createdAt: { type: Date, default: Date.now, expires: 900 } // Auto-delete after 15 mins
 });
 
 module.exports = mongoose.model('PendingUser', pendingUserSchema);

@@ -13,7 +13,7 @@ const generateToken = (id, role) => {
 };
 
 const sendOtpForRegistration = async (req, res) => {
-    const { name, email, password, phoneNumber, address, role } = req.body;
+    const { name, email, password, phoneNumber, address, role, driverPreferences, ownerServices } = req.body;
     const lowerEmail = email.toLowerCase().trim();
 
     try {
@@ -28,7 +28,7 @@ const sendOtpForRegistration = async (req, res) => {
 
         await PendingUser.findOneAndDelete({ email: lowerEmail, role });
         await PendingUser.create({
-            name, email: lowerEmail, password, phoneNumber, address, role
+            name, email: lowerEmail, password, phoneNumber, address, role, driverPreferences, ownerServices
         });
 
         const otpCode = generateOtp();
@@ -48,9 +48,14 @@ const verifyRegistrationOtp = async (req, res) => {
     const lowerEmail = email.toLowerCase().trim();
 
     try {
-        const validOtp = await Otp.findOne({ email: lowerEmail, otp, type: 'REGISTER' });
+        const validOtp = await Otp.findOne({ email: lowerEmail, type: 'REGISTER' });
+        
         if (!validOtp) {
-            return res.status(401).json({ message: 'Invalid or expired OTP' });
+            return res.status(401).json({ message: 'OTP expired or not found. Please register again.' });
+        }
+
+        if (validOtp.otp !== otp.toString().trim()) {
+            return res.status(401).json({ message: 'Invalid OTP code. Please check your email.' });
         }
 
         const pendingUser = await PendingUser.findOne({ email: lowerEmail, role });
@@ -64,7 +69,9 @@ const verifyRegistrationOtp = async (req, res) => {
             password: pendingUser.password,
             phoneNumber: pendingUser.phoneNumber,
             address: pendingUser.address,
-            role: pendingUser.role
+            role: pendingUser.role,
+            driverPreferences: pendingUser.driverPreferences,
+            ownerServices: pendingUser.ownerServices
         });
 
         await PendingUser.deleteOne({ _id: pendingUser._id });
@@ -87,7 +94,8 @@ const verifyRegistrationOtp = async (req, res) => {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                isProfileComplete: user.isProfileComplete
             }
         });
     } catch (error) {
@@ -165,9 +173,14 @@ const verifyOtp = async (req, res) => {
     const lowerEmail = email.toLowerCase().trim();
 
     try {
-        const validOtp = await Otp.findOne({ email: lowerEmail, otp, type: 'LOGIN', role });
+        const validOtp = await Otp.findOne({ email: lowerEmail, type: 'LOGIN', role });
+        
         if (!validOtp) {
-            return res.status(401).json({ message: 'Invalid or expired OTP' });
+            return res.status(401).json({ message: 'OTP expired or not found. Please login again.' });
+        }
+
+        if (validOtp.otp !== otp.toString().trim()) {
+            return res.status(401).json({ message: 'Invalid OTP code. Please check your email.' });
         }
 
         const user = await User.findOne({ email: lowerEmail, role });
@@ -180,7 +193,8 @@ const verifyOtp = async (req, res) => {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                isProfileComplete: user.isProfileComplete
             }
         });
     } catch (error) {
@@ -215,9 +229,13 @@ const verifyResetOtp = async (req, res) => {
     const lowerEmail = email.toLowerCase().trim();
 
     try {
-        const validOtp = await Otp.findOne({ email: lowerEmail, otp, type: 'RESET_PASSWORD' });
+        const validOtp = await Otp.findOne({ email: lowerEmail, type: 'RESET_PASSWORD' });
         if (!validOtp) {
-            return res.status(401).json({ message: 'Invalid or expired OTP' });
+            return res.status(401).json({ message: 'OTP expired or not found. Please request a new code.' });
+        }
+
+        if (validOtp.otp !== otp.toString().trim()) {
+            return res.status(401).json({ message: 'Invalid OTP code. Please check your email.' });
         }
 
         res.status(200).json({ message: 'OTP verified. You can now reset your password.' });
@@ -231,8 +249,9 @@ const resetPassword = async (req, res) => {
     const lowerEmail = email.toLowerCase().trim();
 
     try {
-        const validOtp = await Otp.findOne({ email: lowerEmail, otp, type: 'RESET_PASSWORD' });
-        if (!validOtp) {
+        const validOtp = await Otp.findOne({ email: lowerEmail, type: 'RESET_PASSWORD' });
+        
+        if (!validOtp || validOtp.otp !== otp.toString().trim()) {
             return res.status(401).json({ message: 'Invalid or expired OTP' });
         }
 
@@ -250,6 +269,120 @@ const resetPassword = async (req, res) => {
     }
 };
 
+const completeProfile = async (req, res) => {
+    const { driverPreferences, ownerServices } = req.body;
+
+    try {
+        const isProfileComplete = req.user.role === 'DRIVER' ? false : true;
+
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                driverPreferences,
+                ownerServices,
+                isProfileComplete
+            },
+            { new: true, runValidators: true }
+        ).select('-password');
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({
+            message: 'Profile completed successfully',
+            user: {
+                id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                role: updatedUser.role,
+                driverPreferences: updatedUser.driverPreferences,
+                ownerServices: updatedUser.ownerServices,
+                isProfileComplete: updatedUser.isProfileComplete
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const finalizeOnboarding = async (req, res) => {
+    try {
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user._id,
+            { isProfileComplete: true },
+            { new: true }
+        ).select('-password');
+
+        res.status(200).json({
+            message: 'Onboarding finalized successfully',
+            user: {
+                id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                role: updatedUser.role,
+                isProfileComplete: updatedUser.isProfileComplete
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const updateProfile = async (req, res) => {
+    try {
+        const { name, phoneNumber, address, driverPreferences, active, profilePicture } = req.body;
+        
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user._id,
+            { name, phoneNumber, address, driverPreferences, active, profilePicture },
+            { new: true, runValidators: true }
+        ).select('-password');
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({
+            message: 'Profile updated successfully',
+            user: updatedUser
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ message: 'Please provide both current and new passwords' });
+        }
+
+        // Fetch user and explicitly select password field if it's normally excluded
+        const user = await User.findById(req.user._id).select('+password');
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if current password matches
+        const isMatch = await user.matchPassword(currentPassword);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Incorrect current password' });
+        }
+
+        // Update password (pre-save hook will hash it)
+        user.password = newPassword;
+        await user.save();
+
+        res.status(200).json({ message: 'Password changed successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     sendOtpForRegistration,
     verifyRegistrationOtp,
@@ -258,5 +391,9 @@ module.exports = {
     verifyOtp,
     forgotPassword,
     verifyResetOtp,
-    resetPassword
+    resetPassword,
+    completeProfile,
+    finalizeOnboarding,
+    updateProfile,
+    changePassword
 };
