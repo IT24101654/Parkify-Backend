@@ -26,9 +26,12 @@ app.get('/', (req, res) => {
 const authRoutes = require('./routes/authRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const vehicleRoutes = require('./routes/vehicleRoutes');
+const parkingLocationRoutes = require('./routes/parkingLocationRoutes');
+const reservationRoutes = require('./routes/reservationRoutes');
 const path = require('path');
 const fs = require('fs');
 const { seedSuperAdmin } = require('./utils/seeder');
+const { startReservationScheduler } = require('./utils/reservationScheduler');
 
 // Seed Super Admin on Startup
 seedSuperAdmin();
@@ -36,6 +39,11 @@ seedSuperAdmin();
 app.use('/api/auth', authRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/vehicles', vehicleRoutes);
+app.use('/api/parking-locations', parkingLocationRoutes);
+app.use('/api/reservations', reservationRoutes);
+
+// Start background scheduler for auto reservation status progression
+startReservationScheduler();
 
 const uploadDir = path.join(__dirname, 'uploads/vehicle-docs');
 if (!fs.existsSync(uploadDir)) {
