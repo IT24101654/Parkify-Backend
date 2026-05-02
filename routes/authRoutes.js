@@ -12,10 +12,12 @@ const {
     completeProfile,
     finalizeOnboarding,
     updateProfile,
-    changePassword
+    changePassword,
+    getProfile
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 
+router.get('/profile', protect, getProfile);
 router.post('/register-otp', sendOtpForRegistration);
 router.post('/verify-register-otp', verifyRegistrationOtp);
 router.post('/login', login);
