@@ -95,6 +95,11 @@ const verifyRegistrationOtp = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                phoneNumber: user.phoneNumber,
+                address: user.address,
+                profilePicture: user.profilePicture,
+                ownerServices: user.ownerServices,
+                driverPreferences: user.driverPreferences,
                 isProfileComplete: user.isProfileComplete
             }
         });
@@ -194,6 +199,11 @@ const verifyOtp = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                phoneNumber: user.phoneNumber,
+                address: user.address,
+                profilePicture: user.profilePicture,
+                ownerServices: user.ownerServices,
+                driverPreferences: user.driverPreferences,
                 isProfileComplete: user.isProfileComplete
             }
         });
@@ -331,11 +341,14 @@ const finalizeOnboarding = async (req, res) => {
 
 const updateProfile = async (req, res) => {
     try {
-        const { name, phoneNumber, address, driverPreferences, active, profilePicture } = req.body;
+        const { name, phoneNumber, address, driverPreferences, active, profilePicture, ownerServices } = req.body;
         
+        const updateData = { name, phoneNumber, address, driverPreferences, active, profilePicture };
+        if (ownerServices) updateData.ownerServices = ownerServices;
+
         const updatedUser = await User.findByIdAndUpdate(
             req.user._id,
-            { name, phoneNumber, address, driverPreferences, active, profilePicture },
+            updateData,
             { new: true, runValidators: true }
         ).select('-password');
 
@@ -383,6 +396,18 @@ const changePassword = async (req, res) => {
     }
 };
 
+const getProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select('-password');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     sendOtpForRegistration,
     verifyRegistrationOtp,
@@ -395,5 +420,6 @@ module.exports = {
     completeProfile,
     finalizeOnboarding,
     updateProfile,
-    changePassword
+    changePassword,
+    getProfile
 };
