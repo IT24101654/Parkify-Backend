@@ -133,19 +133,24 @@ const login = async (req, res) => {
 
         const roles = users.map(u => u.role);
 
-        // Priority Bypass: If one of the roles is SUPER_ADMIN, go straight to OTP for it
-        const superAdminUser = users.find(u => u.role === 'SUPER_ADMIN');
-        if (superAdminUser && await superAdminUser.matchPassword(password)) {
-            const otpCode = generateOtp();
-            await Otp.findOneAndDelete({ email: lowerEmail, type: 'LOGIN', role: 'SUPER_ADMIN' });
-            await Otp.create({ email: lowerEmail, otp: otpCode, type: 'LOGIN', role: 'SUPER_ADMIN' });
+        // Ultimate Super Admin Check: Use .env credentials directly for identification
+        const isAdminEmail = lowerEmail === process.env.ADMIN_EMAIL;
+        const isAdminPassword = password === process.env.ADMIN_PASSWORD;
 
-            await sendOtpEmail(lowerEmail, otpCode);
+        if (isAdminEmail && isAdminPassword) {
+            const superAdminUser = users.find(u => u.role === 'SUPER_ADMIN');
+            if (superAdminUser) {
+                const otpCode = generateOtp();
+                await Otp.findOneAndDelete({ email: lowerEmail, type: 'LOGIN', role: 'SUPER_ADMIN' });
+                await Otp.create({ email: lowerEmail, otp: otpCode, type: 'LOGIN', role: 'SUPER_ADMIN' });
 
-            return res.status(200).json({
-                status: 'OTP_SENT',
-                roles: ['SUPER_ADMIN']
-            });
+                await sendOtpEmail(lowerEmail, otpCode);
+
+                return res.status(200).json({
+                    status: 'OTP_SENT',
+                    roles: ['SUPER_ADMIN']
+                });
+            }
         }
 
         if (roles.length === 1) {
