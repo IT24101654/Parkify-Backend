@@ -174,6 +174,7 @@ const selectRole = async (req, res) => {
 };
 
 const verifyOtp = async (req, res) => {
+    console.log('DEBUG: verifyOtp entry - body:', req.body);
     const { email, otp, role } = req.body;
     const lowerEmail = email.toLowerCase().trim();
 
