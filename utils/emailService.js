@@ -15,6 +15,7 @@ const transporter = nodemailer.createTransport({
 
 const sendOtpEmail = async (email, otp) => {
     try {
+        console.log(`Attempting to send OTP to: ${email}`);
         const mailOptions = {
             from: `"Parkify Security" <${process.env.EMAIL_USER}>`,
             to: email,
@@ -27,10 +28,10 @@ const sendOtpEmail = async (email, otp) => {
             `,
         };
 
-        await transporter.sendMail(mailOptions);
-        console.log(`OTP Sent to ${email}`);
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`OTP Sent Successfully to ${email}. MessageId: ${info.messageId}`);
     } catch (error) {
-        console.error('Error sending OTP Email:', error);
+        console.error('FATAL ERROR sending OTP Email:', error);
     }
 };
 
