@@ -190,6 +190,10 @@ const verifyOtp = async (req, res) => {
 
         const user = await User.findOne({ email: lowerEmail, role });
 
+        if (!user) {
+            return res.status(404).json({ message: 'User not found. Please ensure you selected the correct role.' });
+        }
+
         await Otp.deleteOne({ _id: validOtp._id });
 
         res.status(200).json({
