@@ -1,25 +1,15 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // Use SSL
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    family: 4, // Force IPv4
-    tls: {
-        rejectUnauthorized: false
-    }
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+const FROM_EMAIL = 'onboarding@resend.dev';
 
 const sendOtpEmail = async (email, otp) => {
     try {
         console.log(`Attempting to send OTP to: ${email}`);
-        const mailOptions = {
-            from: `"Parkify Security" <${process.env.EMAIL_USER}>`,
-            to: email,
+        const { data, error } = await resend.emails.send({
+            from: FROM_EMAIL,
+            to: [email],
             subject: 'Parkify Authentication OTP',
             html: `
                 <h3>Your Parkify Verification Code</h3>
@@ -27,10 +17,13 @@ const sendOtpEmail = async (email, otp) => {
                 <h2 style="color: green; letter-spacing: 2px;">${otp}</h2>
                 <p>This code will expire in 5 minutes. Do not share it with anyone.</p>
             `,
-        };
+        });
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log(`OTP Sent Successfully to ${email}. MessageId: ${info.messageId}`);
+        if (error) {
+            console.error('FATAL ERROR sending OTP Email:', error);
+        } else {
+            console.log(`OTP Sent Successfully to ${email}. ID: ${data.id}`);
+        }
     } catch (error) {
         console.error('FATAL ERROR sending OTP Email:', error);
     }
@@ -38,9 +31,9 @@ const sendOtpEmail = async (email, otp) => {
 
 const sendAdminAlertEmail = async (adminEmail, newUser) => {
     try {
-        const mailOptions = {
-            from: `"Parkify System" <${process.env.EMAIL_USER}>`,
-            to: adminEmail,
+        const { data, error } = await resend.emails.send({
+            from: FROM_EMAIL,
+            to: [adminEmail],
             subject: '🔔 New User Registration Alert',
             html: `
                 <h3>New User Registered on Parkify</h3>
@@ -52,10 +45,13 @@ const sendAdminAlertEmail = async (adminEmail, newUser) => {
                 </ul>
                 <p>Login to the dashboard for more details.</p>
             `,
-        };
+        });
 
-        await transporter.sendMail(mailOptions);
-        console.log(`Admin Alert Sent to ${adminEmail}`);
+        if (error) {
+            console.error('Error sending Admin Alert Email:', error);
+        } else {
+            console.log(`Admin Alert Sent to ${adminEmail}`);
+        }
     } catch (error) {
         console.error('Error sending Admin Alert Email:', error);
     }
