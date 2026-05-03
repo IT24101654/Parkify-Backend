@@ -283,7 +283,7 @@ const completeProfile = async (req, res) => {
     const { driverPreferences, ownerServices } = req.body;
 
     try {
-        const isProfileComplete = req.user.role === 'DRIVER' ? false : true;
+        const isProfileComplete = true;
 
         const updatedUser = await User.findByIdAndUpdate(
             req.user._id,
