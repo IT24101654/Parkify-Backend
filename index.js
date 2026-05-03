@@ -9,7 +9,14 @@ connectDB();
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: true, // Reflects the request origin
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
+
+
 const stripeWebhookController = require('./controllers/stripeWebhookController');
 app.post('/api/webhook', express.raw({type: 'application/json'}), stripeWebhookController.handleWebhook);
 
