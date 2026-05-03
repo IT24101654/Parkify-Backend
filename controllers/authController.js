@@ -133,9 +133,24 @@ const login = async (req, res) => {
 
         const roles = users.map(u => u.role);
 
+        // Priority Bypass: If one of the roles is SUPER_ADMIN, go straight to OTP for it
+        const superAdminUser = users.find(u => u.role === 'SUPER_ADMIN');
+        if (superAdminUser && await superAdminUser.matchPassword(password)) {
+            const otpCode = generateOtp();
+            await Otp.findOneAndDelete({ email: lowerEmail, type: 'LOGIN', role: 'SUPER_ADMIN' });
+            await Otp.create({ email: lowerEmail, otp: otpCode, type: 'LOGIN', role: 'SUPER_ADMIN' });
+
+            await sendOtpEmail(lowerEmail, otpCode);
+
+            return res.status(200).json({
+                status: 'OTP_SENT',
+                roles: ['SUPER_ADMIN']
+            });
+        }
+
         if (roles.length === 1) {
             const otpCode = generateOtp();
-            await Otp.findOneAndDelete({ email: lowerEmail, type: 'LOGIN' });
+            await Otp.findOneAndDelete({ email: lowerEmail, type: 'LOGIN', role: roles[0] });
             await Otp.create({ email: lowerEmail, otp: otpCode, type: 'LOGIN', role: roles[0] });
 
             await sendOtpEmail(lowerEmail, otpCode);
