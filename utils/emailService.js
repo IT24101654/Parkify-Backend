@@ -13,7 +13,6 @@ const sendOtpEmail = async (email, otp) => {
             subject: 'Parkify Authentication OTP',
             html: `
                 <h3>Your Parkify Verification Code</h3>
-                <p>Use the following 6-digit OTP to complete your verification.</p>
                 <h2 style="color: green; letter-spacing: 2px;">${otp}</h2>
                 <p>This code will expire in 5 minutes. Do not share it with anyone.</p>
             `,
